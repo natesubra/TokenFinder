@@ -12,7 +12,7 @@ import shutil
 
 dbghelp = ctypes.windll.dbghelp
 
-known_processes = ["WINWORD", "ONENOTE", "POWERPNT", "OUTLOOK", "EXCEL", "OneDrive", "Teams", "msedgewebview2", "msedge", "MSPUB"]
+known_processes = ["WINWORD", "ONENOTE", "POWERPNT", "OUTLOOK", "EXCEL", "OneDrive", "Teams", "msedgewebview2", "msedge", "MSPUB", "azuredatastudio", "code", "devenv", "Microsoft.Sharepoint"]
 
 def createMiniDump(pid, file_name):
     pHandle = win32api.OpenProcess(win32con.PROCESS_QUERY_INFORMATION | win32con.PROCESS_VM_READ,0, pid)

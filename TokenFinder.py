@@ -59,8 +59,8 @@ def add_process(processName, processID, process_pairs):
 
 def extract_tokens(ignore_known_aud: bool):
     if ignore_known_aud:
-        print("\nIgnore flag set. Setting audience to '.'\n")
-        known_aud = [ '.' ]
+        print("\nIgnore flag set. Matching on '.', '-', and ''\n")
+        known_aud = [ '.', '-', '' ]
     else:
         known_aud = ["https://graph.microsoft.com/", "https://outlook.office365.com/", "https://outlook.office.com",
                  "sharepoint.com", '00000003-0000-0000-c000-000000000000']

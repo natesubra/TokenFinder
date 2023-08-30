@@ -139,6 +139,6 @@ if __name__ == '__main__':
     if args["ignore"]:
         extract_tokens(ignore_known_aud=True)
     else:
-        extract_tokens()
+        extract_tokens(ignore_known_aud=False)
     shutil.rmtree('Dump')
     print("\nTokens were extracted to tokens.txt! Enjoy :)")
